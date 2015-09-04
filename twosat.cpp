@@ -1,0 +1,138 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  twosat.cpp
+ *
+ *    Description:  
+ *
+ *        Version:  1.0
+ *        Created:  05/06/2015 14:56:37
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Ravish Mishra (), ravish.mishra@gmail.com
+ *   Organization:  
+ *
+ * =====================================================================================
+ */
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <limits>
+#include <fstream>
+#include <cmath>
+#include <cstdlib>
+
+
+using namespace std;
+
+typedef struct clause {
+    int v1;
+    int v2;
+}clause;
+
+typedef struct edge{
+    int t;
+    int h;
+}edge;
+
+
+void printCV(vector<clause>& cv, int n){
+    int ltp = (n < cv.size())? n: cv.size();
+    for(int i=0; i<ltp; i++){
+        cout<<cv[i].v1<<"\t"<<cv[i].v2<<"\n";
+    }
+}
+
+
+void readData(vector<clause>& cv, string fname, int& nv, int& nc){
+    ifstream is(fname);
+    if(!is) exit(1);
+    int count  = 1;
+    string line;
+    ofstream impgraph;
+    string prefix = "ig_";
+    impgraph.open(prefix.append(fname), ios::app | ios::out | ios::binary);
+    while(getline(is, line)){
+        stringstream ls(line);
+        if(count >0){
+            int val;
+            ls>>val;
+            nv = val;
+            nc = val;
+            count--;
+        }else{
+            clause tmp;
+            edge e1, e2;
+            int v1, v2;
+            ls>>v1>>v2; 
+            tmp.v1 = (v1 > 0)? v1-1 : v1+1;
+            tmp.v2 = (v2 > 0)? v2-1 : v2+1;
+            v1 = (v1 < 0)? (-1)*tmp.v1 + nv: tmp.v1; 
+            v2 = (v2 < 0)? (-1)*tmp.v2 + nv: tmp.v2; 
+            e1.t  = (v1 > nv-1)? v1 - nv: v1 + nv; 
+            e1.h = v2;
+            impgraph<<e1.t<<"\t"<<e1.h<<"\n";
+            e2.t  = (v2 > nv-1)? v2 - nv: v2 + nv; 
+            e2.h = v1;
+            impgraph<<e2.t<<"\t"<<e2.h<<"\n";
+            cv.push_back(tmp);
+        }
+    }
+    impgraph.close();
+}
+
+bool twosat(vector<clause>& cv, int nv){
+    vector<int> av(nv, 0);
+    bool result = true;
+    int n_ol = log2(nv);
+    unsigned long long int n_il = 2*pow(nv,2);
+    for(int i= 0; i<n_ol; i++){
+        for(unsigned long long int j=0; j <nv; j++){
+            if(j%500 == 0) cout<<"j: "<<j<<"\n";
+            result = true;
+            for(int k=0; k< nv; k++){
+                int i1 = abs(cv[k].v1);
+                int i2 = abs(cv[k].v2);
+                int s1 = (cv[k].v1 < 0)? 0: 1;
+                int s2 = (cv[k].v2 < 0)? 0: 1;
+                if(av[i1] != s1 && av[i2] != s2){
+                    if(rand()%2 == 0) av[i1] = s1;
+                    else av[i2] = s2;
+                    result = false;
+                    break;
+                }
+            }
+            if(result){
+                /*  
+                for(int l=0; l<av.size(); l++){
+                    cout<<av[l]<<"\t";
+                }
+                cout<<"\n";
+                */
+                return result;
+            }
+        }
+    }
+    return result;
+    
+}
+
+
+int main(void){
+    int nv, nc;
+    vector<clause> cv;
+    vector<string> fv {"2sat1.txt", "2sat2.txt", "2sat3.txt", "2sat4.txt", "2sat5.txt", "2sat6.txt"};
+    for(int i=0; i < fv.size(); i++){
+        string fname = fv[i];
+        readData(cv, fname, nv, nc);
+        //printCV(cv, 100);
+        cout<<fname<<"\n";
+        cout<<nv<<"\t"<<nc<<"\n";
+        //cout<< twosat(cv, nv)<<"\n";
+        cout<<"==========================="<<"\n";
+    }
+    return 0;
+}

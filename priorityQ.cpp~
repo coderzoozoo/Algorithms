@@ -1,0 +1,133 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  priorityQ.cpp
+ *
+ *    Description:  
+ *
+ *        Version:  1.0
+ *        Created:  01/13/2015 14:10:20
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Ravish Mishra (), ravish.mishra@gmail.com
+ *   Organization:  
+ *
+ * =====================================================================================
+ */
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <limits>
+
+using namespace std;
+const int INF = std::numeric_limits<int>::max();
+
+
+typedef struct heap {
+    vector<int> A;
+    int heap_size;
+}heap;
+
+
+inline int parent(int i){return i/2;}
+inline int left(int i){return 2*i+1;}
+inline int right(int i){ return 2*i+2;}
+inline int swap(int& a, int& b) {a=a+b; b = a - b; a = a - b;}
+
+
+void printVect(vector<int> sv){
+    for(int i=0; i<sv.size(); i++){
+        cout<<sv[i]<<"\t";
+    }
+    std::cout<<'\n';
+}
+
+
+void maxHeapify(heap& h, int i){
+    int l = left(i);
+    int r = right(i);
+    float largest = -INF;
+    if(l < h.heap_size && h.A[l] > h.A[i]){
+        largest = l;
+    } else {
+        largest = i;
+    }
+
+    if (r < h.heap_size && h.A[r] > h.A[largest]){
+        largest = r;
+    }
+
+    if(i != largest){
+        swap(h.A[i], h.A[largest]);
+        maxHeapify(h, largest);
+    }
+}
+
+
+inline int heapMaximum(heap h){
+    return h.A[0];
+}
+
+int heapExtractMax(heap& h){
+    if(h.heap_size < 1){
+        cout<<"Heap underflow";
+        exit(0);
+    }
+
+    int max = h.A[0];
+    h.A[0] = h.A[h.heap_size];
+    h.heap_size = h.heap_size - 1;
+    maxHeapify(h, 0);
+    return max;
+}
+
+
+void heapIncreaseKey(heap& h, int i, int key){
+    if(h.A[i] > key){
+        cout<<"\n new key is smaller than the current key";
+        exit(0);
+    }
+    h.A[i] = key;
+    while(i > 0 && h.A[parent(i)] < h.A[i]){
+        swap(h.A[parent(i)], h.A[i]);
+        i = parent(i);
+    }
+}
+
+
+void maxHeapInsert(heap& h, int key){
+    h.heap_size += 1;
+    h.A.push_back(-INF);
+    heapIncreaseKey(h, h.heap_size-1, key);
+}
+
+void heapDelete(heap& h, int i){
+    if (i<0 || i > h.heap_size-1){
+        cout<<"\n key index out of bound";
+        exit(0);
+    }   
+    h.A[i] = h.A[h.heap_size-1];
+    h.heap_size -= 1;
+    maxHeapify(h,i);
+    //h.A.pop_back();
+}
+
+
+void buildMaxHeap(heap& h){
+    h.heap_size = h.A.size();
+    for(int i=(h.A.size()-1)/2; i>=0;i--){
+        maxHeapify(h, i);
+    }
+}
+
+
+int main(void){
+    heap h;
+    h.A = {5,13,9,5,12,8,7,4,0,6,2,1};    
+    buildMaxHeap(h);
+    maxHeapInsert(h,10);
+    printVect(h.A);
+    return 0;
+}

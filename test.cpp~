@@ -1,0 +1,28 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  test.cpp
+ *
+ *    Description:  
+ *
+ *        Version:  1.0
+ *        Created:  04/26/2015 18:20:28
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  Ravish Mishra (), ravish.mishra@gmail.com
+ *   Organization:  
+ *
+ * =====================================================================================
+ */
+#include <iostream>
+#include <limits>
+
+const int INF = std::numeric_limits<int>::max();
+
+int main(void){
+    int x = INF + INF;
+    long int y = INF + INF;
+    cout<<x<<"\t"<<y<<"\n";
+}
+
